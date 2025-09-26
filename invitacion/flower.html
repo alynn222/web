@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BichotaFest 🎉</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Trebuchet MS', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url("img/fio2.png") no-repeat center center fixed;
+      background-size: cover;
+      overflow-x: hidden;
+      color: white;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.55);
+      z-index: 0;
+    }
+
+    /* Fondo animado (burbujas flotando) */
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      animation: rise 15s linear infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    @keyframes rise {
+      from { transform: translateY(0) scale(1); opacity: 0.8; }
+      to { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+    }
+
+    .container {
+      position: relative;
+      padding: 35px 25px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      z-index: 2;
+      background: rgba(0,0,0,0.65);
+      box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .greetings span {
+      font-size: 40px;
+      font-weight: bold;
+      text-shadow: 2px 2px 10px rgba(255, 64, 129, 0.8);
+      display: block;
+      margin-bottom: 10px;
+      animation: pulse 2s infinite;
+      cursor: pointer;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .details {
+      text-align: left;
+      margin-top: 20px;
+      font-size: 20px;
+      line-height: 1.8;
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: inset 0 0 10px rgba(255,255,255,0.2);
+      animation: slideUp 1.5s ease-in-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .details span {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .details i {
+      margin-right: 10px;
+      color: #ff4081;
+    }
+
+    /* Botón */
+    .button { margin-top: 25px; }
+    .botones {
+      background: linear-gradient(45deg, #ff4081, #e91e63);
+      border: none;
+      padding: 14px 30px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 20px;
+      color: white;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    .botones:hover {
+      background: linear-gradient(45deg, #e91e63, #ff4081);
+      transform: scale(1.15) rotate(-2deg);
+      box-shadow: 0px 6px 20px rgba(255, 64, 129, 0.7);
+    }
+
+    /* Confeti */
+    .confeti {
+      position: absolute;
+      pointer-events: none;
+      animation: confeti-fall 1.2s ease-out forwards;
+    }
+    @keyframes confeti-fall {
+      to {
+        transform: translate(var(--x), var(--y)) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+  <!-- FontAwesome para íconos -->
+  <script src="https://kit.fontawesome.com/3f4711d6a2.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <!-- Reproductor de música -->
+  <audio autoplay loop>
+    <source src="sound/bichota.mp3" type="audio/mp3">
+    Tu navegador no soporta el audio.
+  </audio>
+
+  <div class="container">
+    <div class="greetings"><span id="titulo">🎉 BichotaFest 🎉</span></div>
+    <div class="description"><span>¡Pide permiso para dos 🥳</span></div>
+
+    <div class="details">
+      <span><i class="fas fa-calendar-alt"></i> <b>Fecha:</b> Viernes, 03 de Octubre</span>
+      <span><i class="fas fa-clock"></i> <b>Hora:</b> 09:00 PM</span>
+      <span><i class="fas fa-map-marker-alt"></i> <b>Lugar:</b> Salón Comunal Dolorespata <br> (a una cuadra del mercado Virgen Asunta)</span>
+    </div>
+
+    <!-- Botón Confirmar -->
+    <div class="button">
+      <a href="https://wa.me/51966317491?text=✅%20Confirmo%20mi%20asistencia%20al%20BichotaFest%20🎉" target="_blank">
+        <button class="botones">CONFIRMAR ASISTENCIA</button>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Generar burbujas de fondo
+    function crearBurbujas() {
+      const bubble = document.createElement("div");
+      const size = Math.random() * 40 + 10;
+      bubble.classList.add("bubble");
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${10 + Math.random() * 10}s`;
+      document.body.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 20000);
+    }
+    setInterval(crearBurbujas, 500);
+
+    // Explosión de confeti al hacer click en el título
+    const titulo = document.getElementById("titulo");
+    titulo.addEventListener("click", (e) => {
+      for (let i = 0; i < 50; i++) {
+        const confeti = document.createElement("div");
+        confeti.classList.add("confeti");
+
+        // Formas: círculo o rectángulo
+        if (Math.random() > 0.5) {
+          confeti.style.width = "10px";
+          confeti.style.height = "10px";
+          confeti.style.borderRadius = "50%";
+        } else {
+          confeti.style.width = "6px";
+          confeti.style.height = "12px";
+        }
+
+        // Colores: blanco o rosado
+        confeti.style.background = Math.random() > 0.5 ? "white" : "#ff80ab";
+
+        confeti.style.left = `${e.clientX}px`;
+        confeti.style.top = `${e.clientY}px`;
+
+        // Dirección aleatoria
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 200 + 50;
+        confeti.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+        confeti.style.setProperty("--y", `${Math.sin(angle) * distance}px`);
+
+        document.body.appendChild(confeti);
+
+        setTimeout(() => confeti.remove(), 1200);
+      }
+    });
+  </script>
+</body>
+</html>

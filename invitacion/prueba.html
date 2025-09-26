@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Efecto Hover en Article</title>
+  <style>
+    /* --- Base (para celulares: fullscreen) --- */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #000;
+    }
+
+    article {
+      position: relative;
+      width: 100vw;   /* ancho pantalla completa */
+      height: 100vh;  /* alto pantalla completa */
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    article img:first-child {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+      box-shadow: 0 60px 60px -60px rgba(0, 30, 255, 0.5);
+    }
+
+    article img:last-child {
+      position: absolute;
+      width: 70%;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+      transform: translateY(25%);
+      transition: 0.3s ease;
+      opacity: 0;
+    }
+
+    /* Efecto hover que se mantiene */
+    article:hover {
+      transform: perspective(400px) rotateX(10deg) translateY(-3%) translateZ(0);
+    }
+
+    article::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      height: 100%;
+      width: 100%;
+      background-image: linear-gradient(
+        to bottom,
+        transparent 20%,
+        rgba(0, 0, 0, 0.6) 70%,
+        rgba(0, 0, 0, 0.9) 100%
+      );
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    article:hover::before {
+      opacity: 1;
+    }
+
+    article:hover img:last-child {
+      opacity: 1;
+      transform: translateY(10%);
+    }
+
+    /* --- En pantallas grandes (PC, tablet horizontal) --- */
+    @media (min-width: 768px) {
+      article {
+        width: 300px;
+        height: 400px;
+        margin: 50px auto;
+        border-radius: 12px;
+      }
+
+      article img:first-child {
+        border-radius: 12px;
+      }
+
+      article img:last-child {
+        width: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <article>
+    <!-- Imagen principal -->
+    <img src="img/fio.jpg" alt="Imagen principal">
+    <!-- Imagen secundaria -->
+    <img src="img/fio.jpg" alt="Imagen secundaria">
+  </article>
+</body>
+</html>

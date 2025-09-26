@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <title>Flowers</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Trebuchet MS', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url("img/fio2.png") no-repeat center center fixed;
+      background-size: cover;
+      overflow: hidden;
+      color: white;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0);
+      transition: background 0.5s ease;
+      z-index: 0;
+    }
+    body.active::before { background: rgba(0,0,0,0.6); }
+    body::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at top left, rgba(123,44,191,0.6), transparent 70%),
+                  radial-gradient(circle at bottom right, rgba(255,64,129,0.6), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      z-index: 0;
+    }
+    body.active::after { opacity: 1; }
+
+    .container {
+      position: relative;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      z-index: 2;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+    }
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 20px;
+      z-index: -1;
+    }
+    .container img {
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20%);
+      width: 90%;
+      max-width: 500px;
+      opacity: 0;
+      transition: 0.4s ease;
+      z-index: 1;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%);
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: bottom;
+      -webkit-mask-size: cover;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 85%, rgba(0,0,0,0) 100%);
+      mask-repeat: no-repeat;
+      mask-position: bottom;
+      mask-size: cover;
+    }
+    .container:hover {
+      transform: perspective(400px) rotateX(8deg) translateY(-3%);
+    }
+    .container:hover img {
+      opacity: 1;
+      transform: translateX(-50%) translateY(10%);
+    }
+
+    /* Título animado */
+    .greetings h2 {
+      font-size: 60px;
+      font-weight: bold;
+      margin: 0 3px 15px 3px;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 3;
+      cursor: default; /* muestra que no es clickeable (solo hover visual) */
+    }
+    /* los spans de cada letra son inline-block para permitir transformaciones */
+    .greetings h2 span { display: inline-block; }
+
+    .description {
+      margin: 15px 0;
+      font-size: 20px;
+      color: #f1f1f1;
+      position: relative;
+      z-index: 3;
+    }
+    #countdown {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 3;
+    }
+    .time-box {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      border-radius: 12px;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease-in-out;
+    }
+    .time-box:hover { transform: scale(1.1); }
+    .time-value {
+      font-size: 26px;
+      font-weight: bold;
+      color: hsl(300, 92%, 90%);
+    }
+    .time-label {
+      font-size: 14px;
+      margin-top: 5px;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .button { margin-top: 20px; position: relative; z-index: 3; }
+    .botones {
+      background: #ff4081;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 18px;
+      color: white;
+      transition: all 0.3s ease-in-out;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    .botones:hover {
+      background: #e91e63;
+      transform: scale(1.1);
+    }
+    #adminBtn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      z-index: 4;
+    }
+    #adminBtn:hover { background: #444; transform: scale(1.05); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 5;
+    }
+    .modal-content {
+      background: #fff;
+      color: #333;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 350px;
+      width: 90%;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    }
+    .modal-content h2 { margin-bottom: 15px; }
+    .close {
+      margin-top: 15px;
+      background: #ff4081;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .bubbles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    .bubble {
+      position: absolute;
+      bottom: -150px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      animation: rise 20s infinite ease-in;
+    }
+    @keyframes rise {
+      0% { transform: translateY(0) scale(1); opacity: 0.5; }
+      100% { transform: translateY(-120vh) scale(1.5); opacity: 0; }
+    }
+    canvas#confetti {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <button id="adminBtn">Admin</button>
+
+  <div class="container">
+    <img src="img/fio7.png" alt="Decoración">
+
+    <!-- Título animado: le agregamos id="titulo" para poder seleccionarlo desde JS -->
+    <div class="greetings"><h2 id="titulo">MIS 15 AÑITOS</h2></div>
+
+    <div class="description"><span>VIERNES, 03 DE OCTUBRE </span></div>
+    
+    <div id="countdown"></div>
+    <div class="button"><button class="botones" id="openBtn">ACEPTAR INVITACIÓN</button></div>
+  </div>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalText"></h2>
+      <button class="close" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+
+  <div id="adminModal" class="modal">
+    <div class="modal-content">
+      <h2>Acceso Administrador</h2>
+      <input type="password" id="adminPass" placeholder="Contraseña"><br>
+      <button class="close" onclick="checkAdmin()">Ingresar</button>
+      <button class="close" onclick="closeAdminModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="bubbles"></div>
+  <canvas id="confetti"></canvas>
+
+  <script>
+    // === BURBUJAS ===
+    const bubblesContainer = document.querySelector('.bubbles');
+    for (let i = 0; i < 20; i++) {
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.style.width = `${Math.random() * 40 + 10}px`;
+      bubble.style.height = bubble.style.width;
+      bubble.style.left = `${Math.random() * 100}%`;
+      bubble.style.animationDuration = `${Math.random() * 15 + 10}s`;
+      bubblesContainer.appendChild(bubble);
+    }
+
+    // === COUNTDOWN ===
+    const targetDate = new Date("Oct 3, 2025 21:00:00 GMT-0500").getTime();
+    const countdown = document.getElementById("countdown");
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      if (distance <= 0) {
+        clearInterval(timer);
+        countdown.innerHTML = "<div class='time-box'><span class='time-value'>🎉</span><div class='time-label'>¡Accede!</div></div>";
+      } else {
+        const d = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+        countdown.innerHTML = `
+          <div class="time-box"><span class="time-value">${d}</span><div class="time-label">Días</div></div>
+          <div class="time-box"><span class="time-value">${h}</span><div class="time-label">Horas</div></div>
+          <div class="time-box"><span class="time-value">${m}</span><div class="time-label">Minutos</div></div>
+          <div class="time-box"><span class="time-value">${s}</span><div class="time-label">Segundos</div></div>
+        `;
+      }
+    }, 1000);
+
+    // === MODALES ===
+    function showModal(msg) {
+      document.getElementById("modalText").innerText = msg;
+      document.getElementById("modal").style.display = "flex";
+    }
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    document.getElementById("openBtn").addEventListener("click", () => {
+      window.location.href = "flower.html";
+    });
+
+    document.getElementById("adminBtn").addEventListener("click", () => {
+      document.getElementById("adminModal").style.display = "flex";
+    });
+    function closeAdminModal() {
+      document.getElementById("adminModal").style.display = "none";
+    }
+    function checkAdmin() {
+      const pass = document.getElementById("adminPass").value;
+      if (pass === "ROGER") window.location.href = "flower.html";
+      else showModal("❌ Contraseña incorrecta");
+      closeAdminModal();
+    }
+
+    // === EFECTO CONFETI ===
+    const container = document.querySelector('.container');
+    container.addEventListener('mouseenter', () => {
+      document.body.classList.add('active');
+      launchConfetti();
+    });
+    container.addEventListener('mouseleave', () => {
+      document.body.classList.remove('active');
+    });
+
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const particles = [];
+    const colors = ["#a020f0", "#ff69b4", "#00cfff"];
+    function createParticle() {
+      return {
+        x: Math.random() * canvas.width,
+        y: -5,
+        radius: Math.random() * 2 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        speedX: (Math.random()-0.5)*2,
+        speedY: Math.random()*3+2,
+        life: 200
+      };
+    }
+    function drawParticles() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach((p,i) => {
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.life--;
+        if(p.life<=0) particles.splice(i,1);
+      });
+      requestAnimationFrame(drawParticles);
+    }
+    function launchConfetti() {
+      for(let i=0;i<40;i++) particles.push(createParticle());
+    }
+    drawParticles();
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    /* ============================================================
+       ANIMACIÓN DEL TÍTULO "Mi cumpleaños" (solo al pasar el cursor)
+       - Lo que hacemos aquí:
+         1) Seleccionamos el <h2 id="titulo"> (por eso le pusimos el id).
+         2) Envolvemos cada carácter en un <span> para que anime.js
+            pueda transformar cada letra por separado.
+         3) Añadimos un listener 'mouseenter' para que la animación
+            se ejecute SOLO cuando el cursor entre sobre el título.
+         4) NO hay loop: la animación se reproduce una vez por cada
+            entrada del cursor (puedes mover el mouse y volver a entrar
+            para volver a verla).
+       ============================================================ */
+    (function setupTituloHoverAnimation(){
+      // 1) coger el elemento
+      const titulo = document.querySelector("#titulo");
+      if (!titulo) return; // por seguridad: si no existe, salimos.
+
+      // 2) envolver cada letra en <span>
+      //    Usamos split("") para obtener letras y espacios.
+      //    Nota: los espacios también quedan envueltos; los spans están en-linea
+      //    y no romperán el diseño (CSS .greetings h2 span display:inline-block).
+      titulo.innerHTML = titulo.textContent
+        .split("")
+        .map(char => `<span>${char}</span>`)
+        .join("");
+
+      // 3) función que dispara la animación (se ejecuta al 'mouseenter')
+      function animarTitulo() {
+        anime({
+          targets: '#titulo span',                // todas las letras (spans)
+          translateY: [
+            { value: '-2.75rem', easing: 'easeOutExpo', duration: 600 },
+            { value: 0,          easing: 'easeOutBounce', duration: 800, delay: 100 }
+          ],
+          rotate: {
+            value: '-1turn',                      // rota cada letra una vuelta negativa
+            duration: 800
+          },
+          delay: anime.stagger(50),               // retrasa cada letra 50ms respecto a la anterior
+          easing: 'easeInOutCirc',
+          // NO ponemos 'loop' -> la animación corre una vez por activación
+        });
+      }
+
+      // 4) listener: ejecuta animarTitulo cada vez que el cursor entra en el título
+      //    (si quieres que solo se ejecute la PRIMERA vez, reemplaza 'mouseenter' por:
+      //     titulo.addEventListener('mouseenter', function handler(){ animarTitulo(); titulo.removeEventListener('mouseenter', handler); }); )
+      titulo.addEventListener('mouseenter', animarTitulo);
+
+      // Opcional: si te molesta que pueda seleccionarse texto al hacer click/drag,
+      // puedes deshabilitar selección con CSS (no lo añadí para no tocar más estilos).
+    })();
+    
+  </script>
+  
+
+
+
+
+  <style>
+   /*efecto cerveza*/
+  #globo {
+    position: absolute;
+    width: 80px;
+    height: 100px;
+    cursor: pointer;
+    z-index: 20;
+    transition: left 0.5s ease, top 0.5s ease;
+  }
+
+  #mensajeGanaste {
+    position: absolute;
+    font-size: 22px;
+    color: #fff;
+    background: rgba(0,0,0,0.8);
+    padding: 15px 20px;
+    border-radius: 12px;
+    text-align: center;
+    display: none;
+    z-index: 30;
+    line-height: 1.4;
+  }
+
+  .burbuja {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+</style>
+
+<!-- Imagen del globo -->
+<img id="globo" src="img/pilsen.gif" alt="Globo">
+
+<!-- Mensaje que aparece al ganar -->
+<div id="mensajeGanaste">
+   ¡Ganaste!<br>
+  Vale por un shot de tequila <br>
+  <small>📸 Toma tu captura de pantalla</small>
+</div>
+
+<!-- Sonido (pon aquí tu archivo .mp3 o .wav en la carpeta del proyecto) -->
+<audio id="soundPop" src="sound/destapar-chela.mp3" preload="auto"></audio>
+
+<script>
+  const globo = document.getElementById("globo");
+  const mensaje = document.getElementById("mensajeGanaste");
+  const sonido = document.getElementById("soundPop"); // sonido
+  let aciertos = 0;
+
+  // Mover el globo a posiciones aleatorias
+  function moverGlobo() {
+    const x = Math.random() * (window.innerWidth - globo.width);
+    const y = Math.random() * (window.innerHeight - globo.height - 50);
+    globo.style.left = `${x}px`;
+    globo.style.top = `${y}px`;
+  }
+
+  setInterval(moverGlobo, 700);
+  moverGlobo();
+
+  // Crear burbujas al reventar
+  function crearBurbujas(x, y, callback) {
+    for (let i = 0; i < 12; i++) {
+      const burbuja = document.createElement("div");
+      burbuja.classList.add("burbuja");
+
+      // Tamaño aleatorio
+      const size = Math.random() * 15 + 10;
+      burbuja.style.width = `${size}px`;
+      burbuja.style.height = `${size}px`;
+
+      // Posición inicial
+      burbuja.style.left = `${x}px`;
+      burbuja.style.top = `${y}px`;
+
+      // Colores verde o blanco
+      burbuja.style.background = Math.random() > 0.5 ? "green" : "white";
+
+      document.body.appendChild(burbuja);
+
+      // Movimiento aleatorio
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = Math.random() * 80 + 30;
+      burbuja.animate(
+        [
+          { transform: `translate(0,0) scale(0.3)`, opacity: 1 },
+          { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(1.5)`, opacity: 0 }
+        ],
+        { duration: 1000, easing: "ease-out" }
+      );
+
+      // Eliminar burbuja después de animar
+      setTimeout(() => burbuja.remove(), 1000);
+    }
+
+    // Llamar al callback después de la animación
+    setTimeout(callback, 1000);
+  }
+
+  // Al hacer click en el globo
+  globo.addEventListener("click", () => {
+    aciertos++;
+
+    // 🔊 Reproducir sonido
+    sonido.currentTime = 0; // reinicia si se hace clic rápido
+    sonido.play();
+
+    const rect = globo.getBoundingClientRect();
+    const posX = rect.left + rect.width / 2;
+    const posY = rect.top + rect.height / 2;
+
+    if (aciertos >= 3) {
+      globo.style.display = "none";
+
+      // Primero burbujas, luego mensaje
+      crearBurbujas(posX, posY, () => {
+        mensaje.style.left = `${posX - mensaje.offsetWidth / 2}px`;
+        mensaje.style.top = `${posY - 50}px`;
+        mensaje.style.display = "block";
+
+        // Ocultar mensaje después de 5 segundos
+        setTimeout(() => {
+          mensaje.style.display = "none";
+        }, 5000);
+      });
+    }
+  });
+</script>
+
+
+</body>
+</html>
